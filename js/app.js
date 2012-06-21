@@ -1,8 +1,9 @@
 var myapp = {};
 
   StackMob.init({
-    appName: "todo",
+    appName: "html5rocks",
     clientSubdomain: "stackmob339",
+    publicKey: "4ba05c7f-901f-4c03-b0d1-0ff0888cd0cf",
     apiVersion: 0
   });
 
