@@ -214,7 +214,8 @@ var myapp = {};
       routes:{
           "":"home",
           "add":"add",
-          "update/:id":"update"
+          "update/:id":"update",
+           "login":"login"
       },
 
       initialize:function () {
