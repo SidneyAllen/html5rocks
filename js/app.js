@@ -4,8 +4,10 @@ var myapp = {};
     appName: "html5rocks",
     clientSubdomain: "stackmob339",
     publicKey: "4ba05c7f-901f-4c03-b0d1-0ff0888cd0cf",
-    apiVersion: 0
+    apiVersion: 0,
+    //fullURL: true
   });
+
 
 (function($){
 
@@ -49,6 +51,23 @@ var myapp = {};
 
           // Append our todo list to the content area.
           content.append(listContainer);
+
+
+/*
+          //Define your Todo class once on the page.
+          var Blog = StackMob.Model.extend({
+            schemaName: 'blog'
+          });
+         
+          var todoInstance = new Blog({ blog_id : '1234' });
+          todoInstance.incrementOnSave('likes', 2); // the field "mycount" will be incremented by 2
+          todoInstance.save(); // Call save() to make sure the increment gets executed
+         
+          todoInstance.decrementOnSave('likes', 2); // the field "mycount" will be decremented by 2
+          todoInstance.save(); // Call save() to make sure the decrement gets executed
+         */
+
+
         
           return this;
       }
@@ -64,7 +83,7 @@ var myapp = {};
 
         initialize: function() {
           this.router = this.options.router;
-          this.template = _.template($('#add').html());
+          this.template = _.template($('#login').html());
         },
 
         render: function() {
