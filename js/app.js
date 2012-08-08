@@ -4,8 +4,7 @@ var myapp = {};
     appName: "html5rocks",
     clientSubdomain: "stackmob339",
     publicKey: "4ba05c7f-901f-4c03-b0d1-0ff0888cd0cf",
-    apiVersion: 0,
-    //fullURL: true
+    apiVersion: 0
   });
 
 
@@ -93,27 +92,25 @@ var myapp = {};
    
         login: function(e) {
             e.preventDefault();
-            var item = $('#loginForm').serializeObject(),
+            var formData = $('#loginForm').serializeObject(),
                 collection = this.collection
                 router = this.router;
-            
+            console.log(formData)
             // create a new instance of the todo model and populate it 
             // with your form data.
-            var user = new myapp.User(item);
+            var user = new StackMob.User(formData);
           
             // call the create method to save your data at stackmob
-            todo.create({
+            user.login(false,{
                 success: function(model) {
-
-                    // add new item to your collection
-                    collection.add(model);
-
-                    // send a change event to our collection so the 
-                    // list of todos is refreshed on our homepage.
-                    collection.trigger('change');
-
+                    console.log(model)
                     // return back to the home page 
                     router.navigate('#',{trigger: true, replace: false})
+                },
+                error: function(error) {
+                    alert(error.error_description)
+                    // return back to the home page 
+                   
                 }
             });
 
