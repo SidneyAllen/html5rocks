@@ -245,6 +245,7 @@ var myapp = {};
           this.firstPage = true;
       },
 
+
       home:function () {
           this.changePage(new myapp.HomeView({collection:myapp.todos}),true);
       },
