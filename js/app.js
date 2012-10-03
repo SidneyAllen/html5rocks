@@ -263,6 +263,7 @@ var myapp = {};
       },
       changePage:function (page,reverse) {
           $(page.el).attr('data-role', 'page');
+         
           page.render();
           $('body').append($(page.el));
 
