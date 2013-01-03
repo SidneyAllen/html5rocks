@@ -1,105 +1,754 @@
-<!DOCTYPE html> 
-<html>
-  <head>
-    <title>StackMob - HTML5 Rocks</title>
- 
+<!DOCTYPE html>
 
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
- 
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
 
-    <!-- templates -->
-    <script type="text/template" id="listItemTemplate">    
-        <li>
-          <a href="#update/<%= todo_id %>" data-id="<%= todo_id %>"><%= name %></a>
-        </li>
-    </script>
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width" />
 
-     <script type="text/template" id="login">
-       <div data-role="header">
-            <a href="#" data-icon="back" class="back ui-btn-left">Back</a>
-            <h1>Add ToDo</h1>
-        </div>
-        <div data-role="content">
-          <form id="loginForm" name="loginForm">
-              <input type="text" name="username" id="username">
-              <input type="password" name="password" id="password">
-              <input type="submit" name="submitBtn" id="submitBtn" value="Login">
-          </form>
-        </div>
-    </script>
+  <title>StackMob News</title>
 
-    <script type="text/template" id="home">
-        <div data-role="header">
-            <a href="#add" data-role="button" data-icon="add">Add</a>
-            <h1>StackMob ToDo</h1>
-            <a href="#login" data-role="button" data-icon="add">Login</a>
-        </div>
-        <div data-role="content"></div>
-    </script>
+  <!-- Included CSS Files -->
+  <link rel="stylesheet" href="stylesheets/foundation.css">
+  <link rel="stylesheet" href="stylesheets/app.css">
+  <link rel="stylesheet" href="css/font-awesome.css">
 
-    <script type="text/template" id="add">
-        <div data-role="header">
-            <a href="#" data-icon="back" class="back ui-btn-left">Back</a>
-            <h1>Add ToDo</h1>
-        </div>
-        <div data-role="content">
-            <form name="addForm" id="addForm">
-                <input type="text" name="name" id="name" placeholder="new tod" value="">
-                <input type="button" id="addBtn" value="add">
-            </form>
-        </div>
-    </script>
+  <script src="javascripts/modernizr.foundation.js"></script>
 
-    <script type="text/template" id="update">
-        <div data-role="header">
-            <a href="#" data-icon="back" class="back ui-btn-left">Back</a>
-            <h1>Update ToDo</h1>
-        </div>
-        <div data-role="content">
-            <form name="updateForm" id="updateForm">
-                <input type="text" name="name" id="name" value="<%=  name %>">
-                <input type="button" id="updateBtn" value="save">
-                <input type="button" id="deleteBtn" value="delete">
-            </form>
-        </div>
-    </script>
+  <!-- IE Fix for HTML5 Tags -->
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
 
-    
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-
-    <script type="text/javascript">
-      $(document).bind("mobileinit", function(){
-          $.mobile.page.prototype.options.addBackBtn= false;
-          $.mobile.ajaxEnabled = false;
-          $.mobile.linkBindingEnabled = false;
-          $.mobile.hashListeningEnabled = false;
-          $.mobile.pushStateEnabled = false;
-
-           // Remove page from DOM when it's being replaced
-          $('div[data-role="page"]').live('pagehide', function (event, ui) {
-              $(event.currentTarget).remove();
-          });
-      });
-    </script>
-
-     <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
-
-
+  
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <script type="text/javascript" src="http://static.stackmob.com/js/json2-min.js"></script>
-<script type="text/javascript" src="http://static.stackmob.com/js/underscore-1.3.3-min.js"></script>
+<script type="text/javascript" src="http://static.stackmob.com/js/underscore-1.4.1-min.js"></script>
 <script type="text/javascript" src="http://static.stackmob.com/js/backbone-0.9.2-min.js"></script>
-<script type="text/javascript" src="http://static.stackmob.com/js/2.5.3-crypto-sha1-hmac.js"></script>
-<script type="text/javascript" src="http://static.stackmob.com/js/stackmob-js-0.5.5-min.js"></script>
+<script type="text/javascript" src="http://static.stackmob.com/js/stackmob-js-0.6.0-min.js"></script>
 
 
+  <script type="text/javascript">
+    StackMob.init({
+      appName: "socialapp",
+      clientSubdomain: "stackmob339",
+      publicKey: "cdd87f2d-e725-4f8f-85f6-354b2a3707cf",
+      apiVersion: 0
+    });
 
-    <!-- App specific scripts -->
-    <script src="js/app.js"></script>
+    var app = (function($){    
+
+      var my = {};
+
+      var Shout = StackMob.Model.extend({
+        schemaName: "shout"
+      });
+
+      var Shouts = StackMob.Collection.extend({
+        model: Shout
+      });
+
+      var Whisper = StackMob.Model.extend({
+        schemaName: "whisper"
+      });
+
+      var Whispers = StackMob.Collection.extend({
+        model: Whisper
+      });
+  
+    var HomeView = Backbone.View.extend({
+      el: 'body',
+      events: {
+        "click #submitShoutNav": "add",
+        "click #whisperNav": "whisper",
+        "click #loginBtn": "login",
+        "click #logoutBtn": "logout",
+      },
+
+      initialize: function() {
+        this.template = _.template($('#page-home').html());
+        this.router = this.options.router;
+        this.render();
+      },
+
+      render: function() {
+        var el = this.$el
+
+        el.empty();
+        el.append(this.template());
+
+        new ListView({collection:my.shouts});
+        
+        if(StackMob.isLoggedIn()) {
+          new WhisperView({collection:my.whispers});
+        }
+        new AddView({collection:my.shouts, whisperCollection : my.whispers});
+        new LogoutView();
+
+        return this;
+      },
+
+      whisper: function() {
+        if(StackMob.isLoggedIn()) {
+          my.whispers.reset();
+          my.whispers.fetch({async: false});
+          new WhisperView({collection:my.whispers});  
+        }    
+        return this;   
+      },
+
+      login: function(e) {
     
-    <!-- maximum scale added to stop zoom on select controls -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-  </head>
-  <body>
+       window.location.hash = "#submitShout";
+       window.location.reload();
+       return this;
+      },
 
-  </body>
+      add: function(e) {
+        new AddView({collection:my.shouts, whisperCollection : my.whispers});
+        return this;
+      },
+  
+
+      logout: function() {
+
+        var user = new StackMob.User({username: StackMob.getLoggedInUser()});
+        user.logout({
+          success: function() {
+            $('.three').empty();
+            $('#submitShoutTab').empty();
+
+            loginView = new LoginView();
+            this.el = loginView.el;
+            $('#submitShoutTab').append(this.el);
+
+            my.whispers.reset();
+            $('#whisperTab').empty();
+            $('#whisperTab').append('<a href="#submitShout" class="button" id="loginBtn">Login</a> to see your Whispers.');
+          }
+
+        });  
+
+        return this;
+      }
+
+    });
+
+    var ListView = Backbone.View.extend({
+              
+      tagName: 'ul',
+      className : 'nav-bar vertical light',
+
+      initialize: function() {
+        this.template = _.template($('#item-list').html());
+        this.render();
+      },
+
+      render:function (eventName) {
+        var template = this.template,
+                  el = this.$el,
+          collection = this.collection;
+  
+        $("#shoutTab").empty();
+        el.empty();
+                
+        collection.each(function(shout){
+             el.append(template(shout.toJSON()));
+        });
+
+        $("#shoutTab").append(el);
+      
+        return this;
+      }
+
+    });
+
+    var WhisperView = Backbone.View.extend({
+              
+      tagName: 'ul',
+      className : 'nav-bar vertical light',
+
+      initialize: function() {
+        this.template = _.template($('#item-list').html());
+        this.render();
+      },
+
+      render:function (eventName) {
+        var template = this.template,
+                  el = this.$el,
+          collection = this.collection;
+  
+        $("#whisperTab").empty();
+        el.empty();
+                
+        collection.each(function(model){
+          el.append(template(model.toJSON()));
+        });
+
+        $("#whisperTab").append(el);
+        
+        return this;
+      }
+
+    });
+      
+  
+    var AddView = Backbone.View.extend({
+      events: {  
+        "click #addBtn": "save",  
+        "keypress .title":  "onEnter"
+      },
+
+      initialize: function() {
+        this.template = _.template($('#item-edit').html());
+        this.collection = this.options.collection;
+        this.whisperCollection = this.options.whisperCollection;
+        this.render();
+      },
+
+      render: function() {
+        var loginStatus = StackMob.isLoggedIn();
+       
+        $('#submitShoutTab').empty();
+
+        if(!loginStatus) {
+          loginView = new LoginView();
+          this.el = loginView.el;
+        } else {
+          $(this.el).html(this.template());
+        }
+        
+        $('#submitShoutTab').append(this.el);
+        return this;
+      },
+
+      onEnter: function(e) {
+        if (e.keyCode == 13) {
+          this.save(e); 
+        }
+      },
+ 
+
+      save: function(e) {
+        var collection = this.collection,
+          whisperCollection = this.whisperCollection,
+                  item = $('#addForm').serializeObject();
+        
+        e.preventDefault();
+        $('.alert-box').hide();
+
+        if(item.description === ''){
+          $('.alert-box').show();
+          $('.alert-box .message').html('Missing text');
+        
+        } else {
+          $('#addBtn').addClass('disabled');
+          $('#addBtn').attr('disabled',true);
+
+          if(item.username === ''){
+            var shout = new Shout(item);
+            shout.create({
+                  success: function(model){
+                    collection.add(model);
+                    
+                    window.location.href = '#shout';
+                    window.location.reload();
+                  }
+            });
+          } else {
+
+            var whisper = new Whisper({"description": item.description, "url" : item.url});
+            whisper.create({
+              success: function(model){
+                whisperCollection.add(model);
+                
+                model.appendAndSave("user", [item.username,StackMob.getLoggedInUser()], {
+                  success: function(){
+
+                    window.location.href = '#whisper';
+                    window.location.reload();
+                   
+                  },
+                  error: function(error) {
+                    console.log(error);
+                  }
+                })
+
+              }
+            });
+          }        
+        }
+
+        return this;
+      }
+    });
+
+    var LoginView = Backbone.View.extend({
+      events: {  
+        "click #submitLogin": "login",
+        "keypress .title":  "onEnter"
+      },
+
+      initialize: function() {
+        this.template = _.template($('#user-login').html());
+        this.collection = this.options.collection;
+        this.render();
+      },
+
+      render: function() {
+        var loginStatus = StackMob.isLoggedIn();
+             
+        $('#submitShoutTab').empty();
+
+        if(!loginStatus) {
+          // Render Login Form
+          $(this.el).html(this.template());       
+        }
+        
+        $('#submitShoutTab').append(this.el);
+        
+        return this;
+      },
+
+
+      signupPage: function() {
+       var loginStatus = StackMob.isLoggedIn();
+       $('.alert-box').hide();
+            
+        $('#submitShoutTab').empty();
+
+        if(!loginStatus) {
+          // Render SignUp Form
+          signupView = new SignupView();
+          this.el = signupView.el;
+        }
+        $('#submitShoutTab').append(this.el);
+        
+        return this;
+      },
+
+      onEnter: function(e) {
+        if (e.keyCode == 13) {
+          this.login(e); 
+        }
+      },
+
+        login: function(e) {
+          var collection = this.collection,
+                    item = $('#loginForm').serializeObject();
+          
+          e.preventDefault();
+          $('#loginBtn').addClass('disabled');
+          $('#loginBtn').attr('disabled',true);
+          $('.alert-box').hide();
+          
+          var user = new StackMob.User(item);
+          user.login(false,{
+            success: function(model){
+                $('#submitShoutTab').empty();
+                $('#submitShoutTab').append(new AddView({collection:my.shouts , whisperCollection : my.whispers}).el);
+                new LogoutView();
+                
+            },
+            error: function(error){
+                $('#loginBtn').removeClass('disabled');
+                $('#loginBtn').attr('disabled',false);
+                $('.alert-box').show();
+                //$('.alert-box .message').html(error.error_description);
+                $('.alert-box .message').html('Error logging in');
+          
+
+
+            }
+          });  
+
+          return this;
+        }
+      });
+
+      
+      var SignupView = Backbone.View.extend({
+        events: {  
+          "click #signupBtn": "signup",
+          //"click #loginPage": "loginPage",     
+          "keypress .title":  "onEnter"
+        },
+
+        initialize: function() {
+           this.template = _.template($('#user-signup').html());
+           this.collection = this.options.collection;
+           this.render();
+        },
+
+        render: function() {
+          var   loginStatus = StackMob.isLoggedIn();
+                      
+          $('#submitShoutTab').empty();
+
+          if(!loginStatus) {
+            // Render Login Form
+            $(this.el).html(this.template());
+          } else {
+            // Render Submit Shout
+          }
+          
+          $('#submitShoutTab').append(this.el);
+          
+          return this;
+        },
+
+        loginPage: function() {
+          var loginStatus = StackMob.isLoggedIn();
+          $('.alert-box').hide();
+              
+          $('#submitShoutTab').empty();
+
+          if(!loginStatus) {
+            // Render SignUp Form
+            loginView = new LoginView();
+            this.el = loginView.el;
+          } else {
+          }
+          
+          $('#submitShoutTab').append(this.el);
+          
+          return this;
+        },
+
+        onEnter: function(e) {
+          if (e.keyCode == 13) {
+            this.signup(e); 
+          }
+        },
+
+            
+        signup: function(e) {
+          var collection = this.collection,
+                    item = $('#signupForm').serializeObject();
+          
+          e.preventDefault();
+          $('.alert-box').hide();
+
+          if (item.username === ''){
+            $('.alert-box').show();
+            $('.alert-box .message').html('Missing username');
+          } else if (item.password === ''){
+            $('.alert-box').show();
+            $('.alert-box .message').html('Missing password');
+          } else {
+            $('#signupBtn').addClass('disabled');
+            $('#signupBtn').attr('disabled',true);
+            var user = new StackMob.User(item);
+
+            user.create({
+              success: function(model){
+              
+                  // Render Add Shout Form
+                  $('#submitShoutTab').empty();
+                  $('#submitShoutTab').append(new AddView().el);
+              },
+              error: function(error){
+                  $('#signupBtn').removeClass('disabled');
+                  $('#signupBtn').attr('disabled',false);
+                  $('.alert-box').show();
+                  $('.alert-box .message').html(error.error_description);
+              }
+            }); 
+          }
+          
+          return this;
+        }
+      });
+
+
+
+    var LogoutView = Backbone.View.extend({
+      tagName : 'div',
+      className : 'logout',
+
+      events: {   
+        "click #logoutBtn": "logout"
+      },
+
+      initialize: function() {
+        this.template = _.template($('#user-logout').html());
+        this.render();
+      },
+
+      render: function() {
+        var loginStatus = StackMob.isLoggedIn();
+   
+
+        $('.three').empty();
+
+        if(loginStatus) {
+          $(this.el).html(this.template());
+          $('.three').append(this.el);
+        }
+        
+        return this;
+      },
+
+      onEnter: function(e) {
+        if (e.keyCode == 13) {
+          this.save(e); 
+        }
+      },
+
+      logout: function(e) {
+        e.preventDefault();
+        var user = new StackMob.User({username: StackMob.getLoggedInUser()});
+        user.logout({
+          success: function() {
+            
+            $('#submitShoutTab').empty();
+
+            loginView = new LoginView();
+            this.el = loginView.el;
+         
+            $('#submitShoutTab').append(this.el);
+
+          }
+
+        });  
+
+        
+        return this;
+      },
+
+      onEnter: function(e) {
+        if (e.keyCode == 13) {
+          this.save(e); 
+        }
+      },
+
+      save: function(e) {
+        var collection = this.collection,
+                  item = $('#addForm').serializeObject();
+        
+        e.preventDefault();
+
+        var shout = new Shout(item);
+        shout.create({
+          success: function(model){
+            collection.add(model);
+          }
+        });  
+ 
+        return this;
+      }
+    });
+
+
+      AppRouter = Backbone.Router.extend({
+
+        routes:{
+                "":"home",
+                "shout":"shout",
+                "whisper":"whisper",
+                "submitShout":"add",
+                "signup":"signup",
+                "login":"login",
+                "logout":"login"
+        },
+
+        home:function() {
+          new HomeView({collection:my.shouts, router:this});
+        },
+
+        shout:function() {
+          if($("#home").length == 0) {
+             new HomeView({collection:my.shouts, router:this});
+          } else {
+            new ListView({collection:my.shouts, router:this});  
+          }
+          
+        },
+
+        add:function() {
+          if($("#home").length == 0) {
+             new HomeView({collection:my.shouts, router:this});
+          } else {
+            new AddView({collection:my.shouts, whisperCollection : my.whispers, router:this});
+          }
+        },
+    
+        whisper:function() {
+          if($("#home").length == 0) {
+             new HomeView({collection:my.shouts});
+          } else {
+            new AddView({collection:my.shouts, whisperCollection : my.whispers, router:this});
+          }
+        },
+
+        signup:function() {
+          new SignupView({router:this});
+        },
+
+        login:function() {
+          new LoginView({router:this});
+        }
+      });
+
+      my.initData = function() {
+        my.shouts = new Shouts();
+        my.shouts.fetch({async: false});
+   
+        my.whispers = new Whispers();
+        if(StackMob.isLoggedIn()) {
+          my.whispers.fetch({async: true});
+        }
+      };
+
+      return my;
+        
+    }(jQuery));
+
+    $(document).ready(function () {
+         app.initData();
+         
+          app_router = new AppRouter();
+          Backbone.history.start(); 
+          $('.alert-box').hide();
+    });
+
+   
+
+    $.fn.serializeObject = function()
+    {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name] !== undefined) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+
+  </script> 
+
+  <script type="text/template" id="page-home">
+    <div class="row" style="margin-top:20px;" id="home">
+      <div class="eight columns centered">
+        <div class="panel radius">
+
+        <div class="row">
+          <div class="five columns">
+            <h3>Hollagram</h3>
+          </div>
+          <div class="three columns">
+          </div>
+        </div>
+          
+          <dl class="tabs mobile">
+            <dd class="active"><a id="shoutNav" href="#shout">Shouts</a></dd>
+            <dd><a href="#whisper" id="whisperNav">Whispers</a></dd>
+            <dd><a href="#submitShout" id="submitShoutNav">Say Somethin</a></dd>
+          </dl>
+
+          <div class="alert-box alert">
+            <div class="message">message</div>
+            <a href="" class="close">&times;</a>
+          </div>
+
+          <ul class="tabs-content">              
+            <li class="active" id="shoutTab">
+              Loading Shouts ...
+            </li>
+            <li id="whisperTab">
+              <a href="#submitShout" class="button" id="loginBtn">Login</a> to see your Whispers.
+            </li>
+            <li id="submitShoutTab">
+              add shout
+            </li>
+          </ul>
+        </div>
+      </div>
+
+
+    </div>
+
+  </script>
+
+  <script type="text/template" id="item-edit">
+    <form  method="post" id="addForm">
+      <fieldset style="padding-bottom:10px;">
+      <legend>Submit a Shout</legend>
+      <label>Text</label>
+      <textarea  name="description" /></textarea>
+      <label>URL</label>
+      <input type="text" class="twelve"  placeholder="url" name="url" />
+
+
+       <label>Whisper ...</label>
+        <div class="row collapse">
+          <div class="two mobile-one columns">
+            <span class="prefix">@</span>
+          </div>
+          <div class="ten mobile-three columns">
+            <input type="text" name="username" placeholder="username">
+          </div>
+        </div>
+
+      <input type="submit" id="addBtn" class="large button" value="submit" />
+      </fieldset>
+    </form>
+  </script>
+
+  <script type="text/template" id="user-login">
+    <form  method="post" id="loginForm">
+      <fieldset style="padding-bottom:10px;">
+      <legend>Login</legend>
+      <label>username</label>
+      <input type="text" placeholder="username" name="username" />
+      <label>password</label>
+      <input type="password" placeholder="password" name="password" />
+      <input type="submit" id="submitLogin" class="large button" value="Login" />
+        Need an account? <a id="signupPage" href="#signup">SignUp Now</a>.
+      </fieldset>
+    </form>
+  </script>
+
+   <script type="text/template" id="user-signup">
+    <form  method="post" id="signupForm">
+      <fieldset style="padding-bottom:10px;">
+      <legend>Sign-Up</legend>
+      <label>username</label>
+      <input type="text" placeholder="username" name="username" />
+      <label>password</label>
+      <input type="password" placeholder="password" name="password" />
+      <input type="submit" id="signupBtn" class="large button"  value="Sign Up" />
+       Have an account? <a id="loginPage" href="#login">Login Now</a>.
+      </fieldset>
+    </form>
+  </script>
+
+  <script type="text/template" id="user-logout">
+     <a href="#logout" id="logoutBtn" class="small button">Logout <%= StackMob.getLoggedInUser() %></a>
+  </script>
+ 
+  <script type="text/template" id="item-list">
+     <li>
+      <a href="<%= url %>"><%= description %></a></li>
+  </script>
+</head>
+<body>
+
+  <!-- Included JS Files (Compressed) -->
+  <script src="javascripts/foundation.js"></script>
+  
+  <!-- Initialize JS Plugins -->
+  <script src="javascripts/app.js"></script>
+</body>
 </html>
