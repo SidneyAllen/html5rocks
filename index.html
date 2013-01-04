@@ -620,19 +620,22 @@
           app_router = new AppRouter();
           Backbone.history.start(); 
           $('.alert-box').hide();
+
+
+          $("#photo").change(function(ev) {
+            console.log('change')
+            var reader = new FileReader();
+            reader.onload = (function(ev) {
+              $(".latest img").attr("src", ev.target.result).fadeIn();
+            });
+
+            var file = this.files[0];
+            $(".latest img").data("name", file.name);
+            reader.readAsDataURL(file);
+          });
     });
 
-   $("#photo").change(function(ev) {
-
-    var reader = new FileReader();
-    reader.onload = (function(ev) {
-      $(".latest img").attr("src", ev.target.result).fadeIn();
-    });
-
-    var file = this.files[0];
-    $(".latest img").data("name", file.name);
-    reader.readAsDataURL(file);
-  });
+   
 
     $.fn.serializeObject = function()
     {
