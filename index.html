@@ -710,7 +710,7 @@
           <dl class="tabs mobile">
             <dd class="active"><a id="shoutNav" href="#shout">Shouts</a></dd>
             <dd><a href="#whisper" id="whisperNav">Whispers</a></dd>
-            <dd><a href="#submitShout" id="submitShoutNav">Say Somethin</a></dd>
+            <dd><a href="#submitShout" id="submitShoutNav">Say Something</a></dd>
           </dl>
 
           <div class="alert-box alert">
@@ -777,13 +777,43 @@
     </form>
   </script>
 
+  <style type="text/css">
+.inputWrapper {
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    /*Using a background color, but you can use a background image to represent a button*/
+    background-color: #DDF;
+}
+
+.fileInput {
+    cursor: pointer;
+    height: 100%;
+    position:absolute;
+    top: 0;
+    right: 0;
+    /*This makes the button huge so that it can be clicked on*/
+    font-size:50px;
+}
+.hidden {
+    /*Opacity settings for all browsers*/
+    opacity: 0;
+    -moz-opacity: 0;
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0)
+}
+
+  </style>
+
    <script type="text/template" id="user-signup">
     <form  method="post" id="signupForm">
       <fieldset style="padding-bottom:10px;">
       <legend>Sign-Up</legend>
       
       <label>Profile Photo</label>
-      <input type="file" id="photo" accept="image/*;capture=camera">
+      <div class="large button" style="min-width: 170px; ">
+          Take Picture
+          <input type="file" id="photo" class="fileInput hidden"   accept="image/*;capture=camera">
+      </div>
 
       <div class="latest">
         <img>
