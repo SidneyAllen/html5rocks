@@ -45,6 +45,8 @@
 
       var my = {};
 
+
+
       var Shout = StackMob.Model.extend({
         schemaName: "shout"
       });
@@ -445,6 +447,8 @@
             $('#signupBtn').attr('disabled',true);
             var user = new StackMob.User(item);
 
+
+/*
             user.create({
               success: function(model){
               
@@ -459,6 +463,7 @@
                   $('.alert-box .message').html(error.error_description);
               }
             }); 
+*/
           }
           
           return this;
@@ -617,7 +622,17 @@
           $('.alert-box').hide();
     });
 
-   
+   $("#photo").change(function(ev) {
+
+    var reader = new FileReader();
+    reader.onload = (function(ev) {
+      $(".latest img").attr("src", ev.target.result).fadeIn();
+    });
+
+    var file = this.files[0];
+    $(".latest img").data("name", file.name);
+    reader.readAsDataURL(file);
+  });
 
     $.fn.serializeObject = function()
     {
@@ -726,7 +741,12 @@
       <legend>Sign-Up</legend>
       
       <label>Profile Pic</label>
-      <input type="file" accept="image/*;capture=camera">
+      <input type="file" id="photo" accept="image/*;capture=camera">
+
+      <div class="latest">
+        <img>
+      </div>
+
       <label>username</label>
       <input type="text" placeholder="username" name="username" />
       <label>password</label>
