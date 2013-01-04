@@ -48,6 +48,7 @@
         -moz-opacity: 0;
         filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0)
     }
+
   </style>
 
   <script type="text/javascript">
@@ -161,7 +162,7 @@
         this.render();
       },
 
-      render:function (e) {
+      render:function (eventName) {
         var template = this.template,
                   el = this.$el,
           collection = this.collection;
@@ -180,30 +181,32 @@
 
     });
 
-    var WhisperView = Backbone.View.extend({      
+    var WhisperView = Backbone.View.extend({
+              
       tagName: 'ul',
       className : 'nav-bar vertical light',
 
       initialize: function() {
         this.template = _.template($('#item-list').html());
-        this.collection = this.options.collection;
-        this.collection.bind('change', this.render, this);
         this.render();
       },
 
       render:function (eventName) {
         var template = this.template,
-                  el = this.$el;
+                  el = this.$el,
+          collection = this.collection;
   
         $("#whisperTab").empty();
         el.empty();
                 
-        this.collection.each(function(model){
+        collection.each(function(model){
           el.append(template(model.toJSON()));
         });
 
+        
         $("#whisperTab").append(el);
-                
+        
+          
         return this;
       }
 
@@ -220,13 +223,12 @@
         this.template = _.template($('#item-edit').html());
         this.collection = this.options.collection;
         this.whisperCollection = this.options.whisperCollection;
-        //this.collection.bind('change', this.render, this);
         this.render();
       },
 
       render: function() {
         var loginStatus = StackMob.isLoggedIn();
-        console.log('render shouts')
+       
         $('#submitShoutTab').empty();
 
         if(!loginStatus) {
@@ -246,18 +248,10 @@
         }
       },
  
-      resetAddForm: function() {
-        $('#addBtn').removeClass('disabled');
-        $('#addBtn').attr('disabled',false);
-        $('#description').val('');
-        $('#url').val('');
-        $('#username').val('');
-
-      },
 
       save: function(e) {
         var item = $('#addForm').serializeObject();
-        var that = this;
+        
         e.preventDefault();
         $('.alert-box').hide();
 
@@ -272,10 +266,12 @@
           if(item.username === ''){
             var shout = new Shout(item);
             shout.create({
-                success: function(model){
-                  my.shouts.add(model);
-                  that.resetAddForm();
-                }
+                  success: function(model){
+                    my.shouts.add(model);
+                    
+                    window.location.href = '#shout';
+                    window.location.reload();
+                  }
             });
           } else {
 
@@ -286,7 +282,10 @@
                 
                 model.appendAndSave("user", [item.username,StackMob.getLoggedInUser()], {
                   success: function(){
-                    that.resetAddForm();
+
+                    window.location.href = '#whisper';
+                    window.location.reload();
+                   
                   },
                   error: function(error) {
                     console.log(error);
@@ -372,139 +371,141 @@
 
           return this;
         }
-    });
+      });
 
       
-    var SignupView = Backbone.View.extend({
-      events: {  
-        "click #signupBtn": "signup",
-        "click #loginPage": "loginPage",    
-        "keypress .title":  "onEnter",
-        "change #photo": "saveImage"
-      },
+      var SignupView = Backbone.View.extend({
+        events: {  
+          "click #signupBtn": "signup",
+          "click #loginPage": "loginPage",    
+          "keypress .title":  "onEnter",
+          "change #photo": "saveImage"
+        },
 
-      initialize: function() {
-         this.template = _.template($('#user-signup').html());
-         this.collection = this.options.collection;
-         this.render();
-         this.photoBase64;
+        initialize: function() {
+           this.template = _.template($('#user-signup').html());
+           this.collection = this.options.collection;
+           this.render();
+           this.photoBase64;
 
-      },
+        },
 
-      saveImage: function(e) {
-        console.log("save image");
-       
+        saveImage: function(e) {
+          console.log("save image");
+         
 
-        var f = e.target.files[0];
-        if (f.type.match('image.*')) {
-          
-          var reader = new FileReader();
-          reader.readAsDataURL(f);
+          var f = e.target.files[0];
+          if (f.type.match('image.*')) {
+            
+            var reader = new FileReader();
+            reader.readAsDataURL(f);
 
-          reader.onload = (function(e) {
-            console.log("load image");
-            var base64Content = e.target.result.substring(e.target.result.indexOf(',') + 1, e.target.result.length);
-            $(".latest img").attr("src", e.target.result).fadeIn();
-            $(".latest img").attr("data-base64", base64Content);
-            $(".latest img").attr("data-name", f.name);
-            $(".latest img").attr("data-type", f.type);
+            reader.onload = (function(e) {
+              console.log("load image");
+              var base64Content = e.target.result.substring(e.target.result.indexOf(',') + 1, e.target.result.length);
+              $(".latest img").attr("src", e.target.result).fadeIn();
+              $(".latest img").attr("data-base64", base64Content);
+              $(".latest img").attr("data-name", f.name);
+              $(".latest img").attr("data-type", f.type);
 
-          });
-          console.log("done image");
-        } else {
-          console.log("not valid image handle exception");
-        }
-        
-        return this;
-      },
-
-      render: function() {
-        var   loginStatus = StackMob.isLoggedIn();
-                    
-        $('#submitShoutTab').empty();
-
-        if(!loginStatus) {
-          // Render Login Form
-          $(this.el).html(this.template());
-        } else {
-          // Render Submit Shout
-        }
-        
-        $('#submitShoutTab').append(this.el);
-        
-        return this;
-      },
-
-      loginPage: function() {
-        $('.alert-box').hide(); 
-        return this;
-      },
-
-      onEnter: function(e) {
-        if (e.keyCode == 13) {
-          this.signup(e); 
-        }
-      },
-
-      signup: function(e) {
-        var collection = this.collection,
-                  item = $('#signupForm').serializeObject();
-                 
-        e.preventDefault();
-        $('.alert-box').hide();
-
-        if (item.username === ''){
-          $('.alert-box').show();
-          $('.alert-box .message').html('Missing username');
-        } else if (item.password === ''){
-          $('.alert-box').show();
-          $('.alert-box .message').html('Missing password');
-        } else {
-          $('#signupBtn').addClass('disabled');
-          $('#signupBtn').attr('disabled',true);
-          var user = new StackMob.User(item);
-
-          var base64Content = $(".latest img").attr("data-base64");
-          var fileName = $(".latest img").attr("data-name");
-          var fileType = $(".latest img").attr("data-type");
-          
-          if(fileName !== undefined) {
-            user.setBinaryFile("pic", fileName, fileType, base64Content);
+            });
+            console.log("done image");
+          } else {
+            console.log("not valid image handle exception");
           }
+          
+          return this;
+        },
 
-          user.create({
-            success: function(model){
-              console.log(model.toJSON())
-              var user = new StackMob.User(model.toJSON());
-                user.login(false,{
-                  success: function(model){
-                    
-                      $('#submitShoutTab').empty();
-                      $('#submitShoutTab').append(new AddView({collection:my.shouts , whisperCollection : my.whispers}).el);
-                      new LogoutView();
+        render: function() {
+          var   loginStatus = StackMob.isLoggedIn();
+                      
+          $('#submitShoutTab').empty();
 
-                      // Render Add Shout Form
-                      $('#submitShoutTab').empty();
-                      $('#submitShoutTab').append(new AddView().el);
-                  },
-                  error: function(error){
-                      $('.alert-box .message').html('Error logging in');
-                  }
-                });  
+          if(!loginStatus) {
+            // Render Login Form
+            $(this.el).html(this.template());
+          } else {
+            // Render Submit Shout
+          }
+          
+          $('#submitShoutTab').append(this.el);
+          
+          return this;
+        },
 
-            },
-            error: function(error){
-                $('#signupBtn').removeClass('disabled');
-                $('#signupBtn').attr('disabled',false);
-                $('.alert-box').show();
-                $('.alert-box .message').html(error.error_description);
+        loginPage: function() {
+          $('.alert-box').hide(); 
+          return this;
+        },
+
+        onEnter: function(e) {
+          if (e.keyCode == 13) {
+            this.signup(e); 
+          }
+        },
+
+        signup: function(e) {
+          var collection = this.collection,
+                    item = $('#signupForm').serializeObject();
+                   
+          e.preventDefault();
+          $('.alert-box').hide();
+
+          if (item.username === ''){
+            $('.alert-box').show();
+            $('.alert-box .message').html('Missing username');
+          } else if (item.password === ''){
+            $('.alert-box').show();
+            $('.alert-box .message').html('Missing password');
+          } else {
+            $('#signupBtn').addClass('disabled');
+            $('#signupBtn').attr('disabled',true);
+            var user = new StackMob.User(item);
+
+            var base64Content = $(".latest img").attr("data-base64");
+            var fileName = $(".latest img").attr("data-name");
+            var fileType = $(".latest img").attr("data-type");
+            
+            if(fileName !== undefined) {
+              user.setBinaryFile("pic", fileName, fileType, base64Content);
             }
-          }); 
+
+            user.create({
+              success: function(model){
+                console.log(model.toJSON())
+                var user = new StackMob.User(model.toJSON());
+                  user.login(false,{
+                    success: function(model){
+                      
+                        $('#submitShoutTab').empty();
+                        $('#submitShoutTab').append(new AddView({collection:my.shouts , whisperCollection : my.whispers}).el);
+                        new LogoutView();
+
+                        // Render Add Shout Form
+                        $('#submitShoutTab').empty();
+                        $('#submitShoutTab').append(new AddView().el);
+                    },
+                    error: function(error){
+                        $('.alert-box .message').html('Error logging in');
+                    }
+                  });  
+
+              },
+              error: function(error){
+                  $('#signupBtn').removeClass('disabled');
+                  $('#signupBtn').attr('disabled',false);
+                  $('.alert-box').show();
+                  $('.alert-box .message').html(error.error_description);
+              }
+            }); 
+          }
+          
+          return this;
         }
-        
-        return this;
-      }
-    });
+      });
+
+
 
     var LogoutView = Backbone.View.extend({
       tagName : 'div',
@@ -522,6 +523,7 @@
       render: function() {
         var loginStatus = StackMob.isLoggedIn();
    
+
         $('.three').empty();
 
         if(loginStatus) {
@@ -530,6 +532,12 @@
         }
         
         return this;
+      },
+
+      onEnter: function(e) {
+        if (e.keyCode == 13) {
+          this.save(e); 
+        }
       },
 
       logout: function(e) {
@@ -558,107 +566,132 @@
         return this;
       },
 
-    });
-
-
-    AppRouter = Backbone.Router.extend({
-
-      routes:{
-              "":"home",
-              "shout":"shout",
-              "whisper":"whisper",
-              "submitShout":"add",
-              "signup":"signup",
-              "login":"login",
-              "logout":"login"
-      },
-
-      home:function() {
-        new HomeView({collection:my.shouts, router:this});
-
-      },
-
-      shout:function() {
-        if($("#home").length == 0) {
-           new HomeView({collection:my.shouts, router:this});
-        } else {
-          new ListView({collection:my.shouts, router:this});  
+      onEnter: function(e) {
+        if (e.keyCode == 13) {
+          this.save(e); 
         }
+      },
+
+      save: function(e) {
+        var collection = this.collection,
+                  item = $('#addForm').serializeObject();
         
-      },
+        e.preventDefault();
 
-      add:function() {
-        if($("#home").length == 0) {
-           new HomeView({collection:my.shouts, router:this});
-        } else {
-          new AddView({collection:my.shouts, whisperCollection : my.whispers, router:this});
-        }
-      },
-  
-      whisper:function() {
-        if($("#home").length == 0) {
-           new HomeView({collection:my.shouts});
-        } else {
-          new AddView({collection:my.shouts, whisperCollection : my.whispers, router:this});
-        }
-      },
-
-      signup:function() {
-        if($("#home").length == 0) {
-          new HomeView({collection:my.shouts,router:this});;
-        } else {
-           new SignupView({router:this});
-        }
-      },
-
-      login:function() {
-        new LoginView({router:this});
-      }
-    });
-
-    my.initData = function() {
-      my.shouts = new Shouts();
-      my.shouts.fetch({async: false});
- 
-      my.whispers = new Whispers();
-      if(StackMob.isLoggedIn()) {
-        my.whispers.fetch({async: true});
-      }
-    };
-
-    return my;
-        
-  }(jQuery));
-
-  $(document).ready(function () {
-      app.initData();
-         
-      app_router = new AppRouter();
-      Backbone.history.start(); 
-      $('.alert-box').hide();
-
-      $('a').on('click',function() {
-        $('.alert-box').hide(); 
-      });
-      
-  });
-
-  $.fn.serializeObject = function()
-  {
-      var o = {};
-      var a = this.serializeArray();
-      $.each(a, function() {
-          if (o[this.name] !== undefined) {
-              if (!o[this.name].push) {
-                  o[this.name] = [o[this.name]];
-              }
-              o[this.name].push(this.value || '');
-          } else {
-              o[this.name] = this.value || '';
+        var shout = new Shout(item);
+        shout.create({
+          success: function(model){
+            collection.add(model);
           }
+        });  
+ 
+        return this;
+      }
+    });
+
+
+      AppRouter = Backbone.Router.extend({
+
+        routes:{
+                "":"home",
+                "shout":"shout",
+                "whisper":"whisper",
+                "submitShout":"add",
+                "signup":"signup",
+                "login":"login",
+                "logout":"login"
+        },
+
+        home:function() {
+          new HomeView({collection:my.shouts, router:this});
+
+        },
+
+        shout:function() {
+          if($("#home").length == 0) {
+             new HomeView({collection:my.shouts, router:this});
+          } else {
+            new ListView({collection:my.shouts, router:this});  
+          }
+          
+        },
+
+        add:function() {
+          if($("#home").length == 0) {
+             new HomeView({collection:my.shouts, router:this});
+          } else {
+            new AddView({collection:my.shouts, whisperCollection : my.whispers, router:this});
+          }
+        },
+    
+        whisper:function() {
+          if($("#home").length == 0) {
+             new HomeView({collection:my.shouts});
+          } else {
+            new AddView({collection:my.shouts, whisperCollection : my.whispers, router:this});
+          }
+        },
+
+        signup:function() {
+          if($("#home").length == 0) {
+            new HomeView({collection:my.shouts,router:this});;
+          } else {
+             new SignupView({router:this});
+          }
+        },
+
+        login:function() {
+          new LoginView({router:this});
+        }
       });
-      return o;
-  };
+
+      my.initData = function() {
+        my.shouts = new Shouts();
+        my.shouts.fetch({async: false});
+   
+        my.whispers = new Whispers();
+        if(StackMob.isLoggedIn()) {
+          my.whispers.fetch({async: true});
+        }
+      };
+
+      return my;
+        
+    }(jQuery));
+
+    $(document).ready(function () {
+         app.initData();
+         
+          app_router = new AppRouter();
+          Backbone.history.start(); 
+          $('.alert-box').hide();
+
+          $('a').on('click',function() {
+            console.log('clicked');
+            $('.alert-box').hide(); 
+          })
+      
+    });
+
+
+   
+
+    $.fn.serializeObject = function()
+    {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name] !== undefined) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
 
   </script> 
 
@@ -710,9 +743,9 @@
       <fieldset style="padding-bottom:10px;">
       <legend>Submit a Shout</legend>
       <label>Text</label>
-      <textarea  name="description" id="description" /></textarea>
+      <textarea  name="description" /></textarea>
       <label>URL</label>
-      <input type="text" class="twelve" id="url" placeholder="url" name="url" />
+      <input type="text" class="twelve"  placeholder="url" name="url" />
 
 
        <label>Whisper ...</label>
@@ -721,7 +754,7 @@
             <span class="prefix">@</span>
           </div>
           <div class="ten mobile-three columns">
-            <input type="text" name="username" id="username" placeholder="username">
+            <input type="text" name="username" placeholder="username">
           </div>
         </div>
 
