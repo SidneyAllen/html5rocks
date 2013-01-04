@@ -390,21 +390,21 @@
 
         saveImage: function(ev) {
           console.log("save image");
-          console.log(ev);
-          
+         
+
+          var f = ev.target.files[0];
+          if (!f.type.match('image.*')) {
+            continue;
+          }
+
           var reader = new FileReader();
+          reader.readAsDataURL(f);
+
           reader.onload = (function(ev) {
-            console.log("loaded image");
+            console.log("load image");
             $(".latest img").attr("src", ev.target.result).fadeIn();
             //console.log(ev.currentTarget.files[0].name);
           });
-          
-          console.log(ev.target.files[0].name);
-
-          var file = ev.target.files[0];
-
-      
-          reader.readAsDataURL(file);
           
            console.log("done image");
         },
