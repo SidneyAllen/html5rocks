@@ -393,20 +393,22 @@
          
 
           var f = ev.target.files[0];
-          if (!f.type.match('image.*')) {
-            continue;
+          if (f.type.match('image.*')) {
+            
+            var reader = new FileReader();
+            reader.readAsDataURL(f);
+
+            reader.onload = (function(ev) {
+              console.log("load image");
+              $(".latest img").attr("src", ev.target.result).fadeIn();
+              //console.log(ev.currentTarget.files[0].name);
+            });
+            console.log("done image");
+          } else {
+            console.log("not valid image handle exception");
           }
-
-          var reader = new FileReader();
-          reader.readAsDataURL(f);
-
-          reader.onload = (function(ev) {
-            console.log("load image");
-            $(".latest img").attr("src", ev.target.result).fadeIn();
-            //console.log(ev.currentTarget.files[0].name);
-          });
           
-           console.log("done image");
+           
         },
 
         render: function() {
