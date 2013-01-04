@@ -395,7 +395,7 @@
           reader.onload = (function(ev) {
             console.log("loaded image");
             $(".latest img").attr("src", ev.target.result).fadeIn();
-            console.log(ev.target.result);
+            console.log(ev.currentTarget.files[0].name);
           });
 
           /*var file = this.files[0];
