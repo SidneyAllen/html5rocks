@@ -391,18 +391,21 @@
         saveImage: function(ev) {
           console.log("save image");
           console.log(ev);
+          
           var reader = new FileReader();
           reader.onload = (function(ev) {
             console.log("loaded image");
-            $(".latest img").attr("src", ev.target.result).fadeIn();
-            console.log(ev.currentTarget.files[0].name);
+            //$(".latest img").attr("src", ev.target.result).fadeIn();
+            //console.log(ev.currentTarget.files[0].name);
           });
-          console.log(ev.currentTarget.files[0].name);
+          
+          console.log(ev.target.files[0].name);
 
-          /*var file = this.files[0];
-          $(".latest img").data("name", file.name);
+          var file = ev.target.files[0];
+
+      
           reader.readAsDataURL(file);
-          */
+          
            console.log("done image");
         },
 
