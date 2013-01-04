@@ -25,13 +25,31 @@
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
 
-  
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-<script type="text/javascript" src="http://static.stackmob.com/js/json2-min.js"></script>
-<script type="text/javascript" src="http://static.stackmob.com/js/underscore-1.4.1-min.js"></script>
-<script type="text/javascript" src="http://static.stackmob.com/js/backbone-0.9.2-min.js"></script>
-<script type="text/javascript" src="http://static.stackmob.com/js/stackmob-js-0.6.0-min.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script type="text/javascript" src="http://static.stackmob.com/js/json2-min.js"></script>
+  <script type="text/javascript" src="http://static.stackmob.com/js/underscore-1.4.1-min.js"></script>
+  <script type="text/javascript" src="http://static.stackmob.com/js/backbone-0.9.2-min.js"></script>
+  <script type="text/javascript" src="http://static.stackmob.com/js/stackmob-js-0.6.0-min.js"></script>
 
+  <style type="text/css">
+
+    .fileInput {
+        cursor: pointer;
+        height: 100%;
+        position:absolute;
+        top: 0;
+        right: 0;
+        /*This makes the button huge so that it can be clicked on*/
+        font-size:50px;
+    }
+    .hidden {
+        /*Opacity settings for all browsers*/
+        opacity: 0;
+        -moz-opacity: 0;
+        filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0)
+    }
+
+  </style>
 
   <script type="text/javascript">
     StackMob.init({
@@ -44,8 +62,6 @@
     var app = (function($){    
 
       var my = {};
-
-
 
       var Shout = StackMob.Model.extend({
         schemaName: "shout"
@@ -192,8 +208,10 @@
           el.append(template(model.toJSON()));
         });
 
+        
         $("#whisperTab").append(el);
         
+          
         return this;
       }
 
@@ -237,9 +255,7 @@
  
 
       save: function(e) {
-        var collection = this.collection,
-          whisperCollection = this.whisperCollection,
-                  item = $('#addForm').serializeObject();
+        var item = $('#addForm').serializeObject();
         
         e.preventDefault();
         $('.alert-box').hide();
@@ -256,7 +272,7 @@
             var shout = new Shout(item);
             shout.create({
                   success: function(model){
-                    collection.add(model);
+                    my.shouts.add(model);
                     
                     window.location.href = '#shout';
                     window.location.reload();
@@ -267,7 +283,7 @@
             var whisper = new Whisper({"description": item.description, "url" : item.url});
             whisper.create({
               success: function(model){
-                whisperCollection.add(model);
+                my.whispers.add(model);
                 
                 model.appendAndSave("user", [item.username,StackMob.getLoggedInUser()], {
                   success: function(){
@@ -293,6 +309,7 @@
     var LoginView = Backbone.View.extend({
       events: {  
         "click #submitLogin": "login",
+        "click #signupPage": "signupPage",
         "keypress .title":  "onEnter"
       },
 
@@ -317,20 +334,8 @@
         return this;
       },
 
-
       signupPage: function() {
-       var loginStatus = StackMob.isLoggedIn();
        $('.alert-box').hide();
-            
-        $('#submitShoutTab').empty();
-
-        if(!loginStatus) {
-          // Render SignUp Form
-          signupView = new SignupView();
-          this.el = signupView.el;
-        }
-        $('#submitShoutTab').append(this.el);
-        
         return this;
       },
 
@@ -340,7 +345,7 @@
         }
       },
 
-        login: function(e) {
+      login: function(e) {
           var collection = this.collection,
                     item = $('#loginForm').serializeObject();
           
@@ -377,7 +382,7 @@
       var SignupView = Backbone.View.extend({
         events: {  
           "click #signupBtn": "signup",
-          //"click #loginPage": "loginPage",     
+          "click #loginPage": "loginPage",    
           "keypress .title":  "onEnter",
           "change #photo": "saveImage"
         },
@@ -408,17 +413,6 @@
               $(".latest img").attr("data-name", f.name);
               $(".latest img").attr("data-type", f.type);
 
-                /*
-              var base64Content = e.target.result.substring(e.target.result.indexOf(',') + 1, e.target.result.length);
-              var fileName = theFile.name;
-              var fileType = theFile.type;
- 
-              todoInstance.setBinaryFile(fieldname, fileName, fileType, base64Content);
-              todoInstance.save();
-              */
-
-
-              //console.log(e.currentTarget.files[0].name);
             });
             console.log("done image");
           } else {
@@ -426,7 +420,6 @@
           }
           
           return this;
-           
         },
 
         render: function() {
@@ -447,20 +440,7 @@
         },
 
         loginPage: function() {
-          var loginStatus = StackMob.isLoggedIn();
-          $('.alert-box').hide();
-              
-          $('#submitShoutTab').empty();
-
-          if(!loginStatus) {
-            // Render SignUp Form
-            loginView = new LoginView();
-            this.el = loginView.el;
-          } else {
-          }
-          
-          $('#submitShoutTab').append(this.el);
-          
+          $('.alert-box').hide(); 
           return this;
         },
 
@@ -470,7 +450,6 @@
           }
         },
 
-            
         signup: function(e) {
           var collection = this.collection,
                     item = $('#signupForm').serializeObject();
@@ -492,14 +471,31 @@
             var base64Content = $(".latest img").attr("data-base64");
             var fileName = $(".latest img").attr("data-name");
             var fileType = $(".latest img").attr("data-type");
-            user.setBinaryFile("pic", fileName, fileType, base64Content);
+            
+            if(fileName !== undefined) {
+              user.setBinaryFile("pic", fileName, fileType, base64Content);
+            }
 
             user.create({
               success: function(model){
-              
-                  // Render Add Shout Form
-                  $('#submitShoutTab').empty();
-                  $('#submitShoutTab').append(new AddView().el);
+                console.log(model.toJSON())
+                var user = new StackMob.User(model.toJSON());
+                  user.login(false,{
+                    success: function(model){
+                      console.log(my.shouts.toJSON())
+                        $('#submitShoutTab').empty();
+                        $('#submitShoutTab').append(new AddView({collection:my.shouts , whisperCollection : my.whispers}).el);
+                        new LogoutView();
+
+                        // Render Add Shout Form
+                        $('#submitShoutTab').empty();
+                        $('#submitShoutTab').append(new AddView().el);
+                    },
+                    error: function(error){
+                        $('.alert-box .message').html('Error logging in');
+                    }
+                  });  
+
               },
               error: function(error){
                   $('#signupBtn').removeClass('disabled');
@@ -561,6 +557,11 @@
             this.el = loginView.el;
          
             $('#submitShoutTab').append(this.el);
+            new LogoutView();
+
+            if(StackMob.isLoggedIn()) {
+              new WhisperView({collection:my.whispers});
+            }
 
           }
 
@@ -608,6 +609,7 @@
 
         home:function() {
           new HomeView({collection:my.shouts, router:this});
+
         },
 
         shout:function() {
@@ -669,6 +671,10 @@
           Backbone.history.start(); 
           $('.alert-box').hide();
 
+          $('a').on('click',function() {
+            console.log('clicked');
+            $('.alert-box').hide(); 
+          })
       
     });
 
@@ -767,9 +773,9 @@
       <fieldset style="padding-bottom:10px;">
       <legend>Login</legend>
       <label>username</label>
-      <input type="text" placeholder="username" name="username" required="true" autofocus="true" autocapitalize="off" autocorrect="off" />
+      <input type="text" placeholder="username" name="username"  autofocus="true" autocapitalize="off" autocorrect="off" />
       <label>password</label>
-      <input type="password" placeholder="password" name="password" required="true" />
+      <input type="password" placeholder="password" name="password"  />
       <input type="submit" id="submitLogin" class="large button" value="Login" />
       <br/><br/>
         Need an account? <br/><a id="signupPage" class="large button" href="#signup">Sign Up</a>
@@ -777,32 +783,7 @@
     </form>
   </script>
 
-  <style type="text/css">
-.inputWrapper {
-    overflow: hidden;
-    position: relative;
-    cursor: pointer;
-    /*Using a background color, but you can use a background image to represent a button*/
-    background-color: #DDF;
-}
 
-.fileInput {
-    cursor: pointer;
-    height: 100%;
-    position:absolute;
-    top: 0;
-    right: 0;
-    /*This makes the button huge so that it can be clicked on*/
-    font-size:50px;
-}
-.hidden {
-    /*Opacity settings for all browsers*/
-    opacity: 0;
-    -moz-opacity: 0;
-    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0)
-}
-
-  </style>
 
    <script type="text/template" id="user-signup">
     <form  method="post" id="signupForm">
