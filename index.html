@@ -614,6 +614,9 @@
         },
 
         signup:function() {
+          if($("#home").length == 0) {
+            new HomeView({collection:my.shouts});
+          }
           new SignupView({router:this});
         },
 
