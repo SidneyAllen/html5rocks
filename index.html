@@ -386,28 +386,46 @@
            this.template = _.template($('#user-signup').html());
            this.collection = this.options.collection;
            this.render();
+           this.photoBase64;
+
         },
 
-        saveImage: function(ev) {
+        saveImage: function(e) {
           console.log("save image");
          
 
-          var f = ev.target.files[0];
+          var f = e.target.files[0];
           if (f.type.match('image.*')) {
             
             var reader = new FileReader();
             reader.readAsDataURL(f);
 
-            reader.onload = (function(ev) {
+            reader.onload = (function(e) {
               console.log("load image");
-              $(".latest img").attr("src", ev.target.result).fadeIn();
-              //console.log(ev.currentTarget.files[0].name);
+              var base64Content = e.target.result.substring(e.target.result.indexOf(',') + 1, e.target.result.length);
+              $(".latest img").attr("src", e.target.result).fadeIn();
+              $(".latest img").attr("data-base64", base64Content);
+              $(".latest img").attr("data-name", f.name);
+              $(".latest img").attr("data-type", f.type);
+
+                /*
+              var base64Content = e.target.result.substring(e.target.result.indexOf(',') + 1, e.target.result.length);
+              var fileName = theFile.name;
+              var fileType = theFile.type;
+ 
+              todoInstance.setBinaryFile(fieldname, fileName, fileType, base64Content);
+              todoInstance.save();
+              */
+
+
+              //console.log(e.currentTarget.files[0].name);
             });
             console.log("done image");
           } else {
             console.log("not valid image handle exception");
           }
           
+          return this;
            
         },
 
@@ -456,7 +474,7 @@
         signup: function(e) {
           var collection = this.collection,
                     item = $('#signupForm').serializeObject();
-          
+                   
           e.preventDefault();
           $('.alert-box').hide();
 
@@ -471,8 +489,11 @@
             $('#signupBtn').attr('disabled',true);
             var user = new StackMob.User(item);
 
+            var base64Content = $(".latest img").attr("data-base64");
+            var fileName = $(".latest img").attr("data-name");
+            var fileType = $(".latest img").attr("data-type");
+            user.setBinaryFile("pic", fileName, fileType, base64Content);
 
-/*
             user.create({
               success: function(model){
               
@@ -487,7 +508,6 @@
                   $('.alert-box .message').html(error.error_description);
               }
             }); 
-*/
           }
           
           return this;
