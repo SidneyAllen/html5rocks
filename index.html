@@ -388,18 +388,19 @@
            this.render();
         },
 
-        saveImage: function() {
+        saveImage: function(ev) {
           console.log("save image");
 
           var reader = new FileReader();
           reader.onload = (function(ev) {
+            console.log("loaded image");
             $(".latest img").attr("src", ev.target.result).fadeIn();
           });
 
           var file = this.files[0];
           $(".latest img").data("name", file.name);
           reader.readAsDataURL(file);
-
+           console.log("done image");
         },
 
         render: function() {
