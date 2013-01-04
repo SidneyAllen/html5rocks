@@ -379,12 +379,17 @@
           "click #signupBtn": "signup",
           //"click #loginPage": "loginPage",     
           "keypress .title":  "onEnter"
+          "change #photo": "saveImage"
         },
 
         initialize: function() {
            this.template = _.template($('#user-signup').html());
            this.collection = this.options.collection;
            this.render();
+        },
+
+        saveImage: function() {
+          console.log("save image");
         },
 
         render: function() {
@@ -621,19 +626,9 @@
           Backbone.history.start(); 
           $('.alert-box').hide();
 
-
-          $("#photo").change(function(ev) {
-            console.log('change')
-            var reader = new FileReader();
-            reader.onload = (function(ev) {
-              $(".latest img").attr("src", ev.target.result).fadeIn();
-            });
-
-            var file = this.files[0];
-            $(".latest img").data("name", file.name);
-            reader.readAsDataURL(file);
-          });
+      
     });
+
 
    
 
