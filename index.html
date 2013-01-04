@@ -390,6 +390,16 @@
 
         saveImage: function() {
           console.log("save image");
+
+          var reader = new FileReader();
+          reader.onload = (function(ev) {
+            $(".latest img").attr("src", ev.target.result).fadeIn();
+          });
+
+          var file = this.files[0];
+          $(".latest img").data("name", file.name);
+          reader.readAsDataURL(file);
+
         },
 
         render: function() {
